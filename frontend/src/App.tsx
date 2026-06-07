@@ -1,22 +1,27 @@
-import { useEffect, useState } from "react";
-import { Button, ConfigProvider, Layout, Typography, theme } from "antd";
-import { ApiOutlined } from "@ant-design/icons";
+import { useEffect, useState, useCallback } from "react";
+import { Button, ConfigProvider, Layout, Typography, theme, Space } from "antd";
+import { ApiOutlined, PlusOutlined, ReloadOutlined } from "@ant-design/icons";
 import { fetchOverview } from "./api/client";
 import { APP_CODE, APP_NAME, APP_THEME } from "./constants/app";
 import { REQUEST_MESSAGES } from "./constants/messages";
 import { createFallbackOverview } from "./state/dashboard";
-import type { OverviewResponse } from "./types";
+import type { OverviewResponse, RevenueRecord } from "./types";
 import { FeatureStrip } from "./components/FeatureStrip";
 import { MetricGrid } from "./components/MetricGrid";
 import { OperationsTable } from "./components/OperationsTable";
+import { RevenueFormModal } from "./components/RevenueFormModal";
+import { RevenueHistory } from "./components/RevenueHistory";
 
 const { Header, Content } = Layout;
 
 export default function App() {
   const [overview, setOverview] = useState<OverviewResponse>(createFallbackOverview());
   const [notice, setNotice] = useState(REQUEST_MESSAGES.overviewFallback);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingRecord, setEditingRecord] = useState<RevenueRecord | null>(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  useEffect(() => {
+  const loadOverview = useCallback(() => {
     fetchOverview()
       .then((payload) => {
         setOverview(payload);
@@ -24,6 +29,29 @@ export default function App() {
       })
       .catch(() => setNotice(REQUEST_MESSAGES.overviewFallback));
   }, []);
+
+  useEffect(() => {
+    loadOverview();
+  }, [loadOverview, refreshTrigger]);
+
+  const handleAddRevenue = () => {
+    setEditingRecord(null);
+    setModalOpen(true);
+  };
+
+  const handleEditRevenue = (record: RevenueRecord) => {
+    setEditingRecord(record);
+    setModalOpen(true);
+  };
+
+  const handleFormSuccess = () => {
+    setRefreshTrigger((prev) => prev + 1);
+    loadOverview();
+  };
+
+  const handleRefresh = () => {
+    setRefreshTrigger((prev) => prev + 1);
+  };
 
   return (
     <ConfigProvider
@@ -43,7 +71,17 @@ export default function App() {
             <span className="brand-code">{APP_CODE}</span>
             <h1 className="brand-title">{APP_NAME}</h1>
           </div>
-          <Button type="primary" icon={<ApiOutlined />} href={REQUEST_MESSAGES.healthPath}>API Health</Button>
+          <Space>
+            <Button type="primary" icon={<PlusOutlined />} onClick={handleAddRevenue}>
+              营收录入
+            </Button>
+            <Button icon={<ReloadOutlined />} onClick={handleRefresh}>
+              刷新数据
+            </Button>
+            <Button type="default" icon={<ApiOutlined />} href={REQUEST_MESSAGES.healthPath}>
+              API Health
+            </Button>
+          </Space>
         </Header>
         <Content className="workspace">
           <section className="lead-grid">
@@ -59,8 +97,16 @@ export default function App() {
             <Typography.Title level={3}>运营任务流</Typography.Title>
             <OperationsTable records={overview.records} />
           </section>
+          <RevenueHistory onEdit={handleEditRevenue} refreshTrigger={refreshTrigger} />
         </Content>
       </Layout>
+
+      <RevenueFormModal
+        open={modalOpen}
+        onCancel={() => setModalOpen(false)}
+        onSuccess={handleFormSuccess}
+        editingRecord={editingRecord}
+      />
     </ConfigProvider>
   );
 }
