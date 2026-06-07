@@ -102,21 +102,21 @@ export function RevenueHistory({ onEdit, refreshTrigger }: RevenueHistoryProps) 
       dataIndex: "income",
       key: "income",
       width: 100,
-      render: (value) => <span style={{ color: "#52c41a", fontWeight: 600 }}>¥{value.toFixed(2)}</span>,
+      render: (value) => <span style={{ color: "#52c41a", fontWeight: 600 }}>¥{Number(value).toFixed(2)}</span>,
     },
     {
       title: "支出",
       dataIndex: "expense",
       key: "expense",
       width: 100,
-      render: (value) => <span style={{ color: "#ff4d4f" }}>¥{value.toFixed(2)}</span>,
+      render: (value) => <span style={{ color: "#ff4d4f" }}>¥{Number(value).toFixed(2)}</span>,
     },
     {
       title: "利润",
       key: "profit",
       width: 100,
       render: (_, record) => {
-        const profit = record.income - record.expense;
+        const profit = Number(record.income) - Number(record.expense);
         return (
           <span style={{ color: profit >= 0 ? "#52c41a" : "#ff4d4f", fontWeight: 600 }}>
             ¥{profit.toFixed(2)}
@@ -144,8 +144,8 @@ export function RevenueHistory({ onEdit, refreshTrigger }: RevenueHistoryProps) 
       width: 90,
       align: "center",
       render: (_, record) => {
-        if (record.reservationCount === 0) return "-";
-        const rate = Math.round((record.actualAttendance / record.reservationCount) * 100);
+        if (Number(record.reservationCount) === 0) return "-";
+        const rate = Math.round((Number(record.actualAttendance) / Number(record.reservationCount)) * 100);
         const color = rate >= 90 ? "green" : rate >= 70 ? "blue" : "orange";
         return <Tag color={color}>{rate}%</Tag>;
       },

@@ -40,27 +40,27 @@ export const localFeatures: FeatureItem[] = [
 
 export const localKpis: KpiItem[] = [
   {
-    "label": "今日处理",
-    "value": "100",
-    "trend": "+12%",
+    "label": "今日营收",
+    "value": "¥0",
+    "trend": "净利 ¥0",
     "tone": "primary"
   },
   {
-    "label": "预约/订单",
-    "value": "34",
-    "trend": "+8%",
+    "label": "今日预约",
+    "value": "0",
+    "trend": "0 人",
     "tone": "warm"
   },
   {
     "label": "履约率",
-    "value": "90%",
-    "trend": "+3%",
-    "tone": "cool"
+    "value": "0%",
+    "trend": "暂无数据",
+    "tone": "neutral"
   },
   {
-    "label": "待处理",
-    "value": "7",
-    "trend": "需跟进",
+    "label": "今日支出",
+    "value": "¥0",
+    "trend": "运营成本",
     "tone": "neutral"
   }
 ];

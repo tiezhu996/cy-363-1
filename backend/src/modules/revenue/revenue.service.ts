@@ -16,9 +16,18 @@ export interface RevenueListResponse {
 }
 
 export class RevenueService {
+  private normalizeRecord(record: RevenueRecord): RevenueRecordAttributes {
+    const json = record.toJSON();
+    return {
+      ...json,
+      income: Number(json.income),
+      expense: Number(json.expense),
+    };
+  }
+
   async createRecord(data: RevenueRecordCreationAttributes): Promise<RevenueRecordAttributes> {
     const record = await RevenueRecord.create(data);
-    return record.toJSON();
+    return this.normalizeRecord(record);
   }
 
   async getRecordList(params: {
@@ -53,7 +62,7 @@ export class RevenueService {
     });
 
     return {
-      list: rows.map((row) => row.toJSON()),
+      list: rows.map((row) => this.normalizeRecord(row)),
       total: count,
     };
   }
@@ -100,7 +109,7 @@ export class RevenueService {
     const record = await RevenueRecord.findByPk(id);
     if (!record) return null;
     await record.update(data);
-    return record.toJSON();
+    return this.normalizeRecord(record);
   }
 
   async deleteRecord(id: number): Promise<boolean> {
