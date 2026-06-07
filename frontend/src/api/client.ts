@@ -8,6 +8,16 @@ import type {
   ApiResponse,
 } from "../types";
 
+function normalizeRevenueRecord(record: RevenueRecord): RevenueRecord {
+  return {
+    ...record,
+    income: Number(record.income),
+    expense: Number(record.expense),
+    actualAttendance: Number(record.actualAttendance),
+    reservationCount: Number(record.reservationCount),
+  };
+}
+
 export async function fetchOverview(): Promise<OverviewResponse> {
   const response = await fetch(`${API_BASE_URL}/overview`, {
     headers: { Accept: "application/json" },
@@ -34,7 +44,11 @@ export async function createRevenueRecord(data: CreateRevenueRequest): Promise<A
     throw new Error(`Create revenue record failed: ${response.status}`);
   }
 
-  return response.json() as Promise<ApiResponse<RevenueRecord>>;
+  const result = (await response.json()) as ApiResponse<RevenueRecord>;
+  if (result.success && result.data) {
+    result.data = normalizeRevenueRecord(result.data);
+  }
+  return result;
 }
 
 export async function fetchRevenueRecords(params?: {
@@ -58,7 +72,11 @@ export async function fetchRevenueRecords(params?: {
     throw new Error(`Fetch revenue records failed: ${response.status}`);
   }
 
-  return response.json() as Promise<ApiResponse<RevenueListResponse>>;
+  const result = (await response.json()) as ApiResponse<RevenueListResponse>;
+  if (result.success && result.data?.list) {
+    result.data.list = result.data.list.map(normalizeRevenueRecord);
+  }
+  return result;
 }
 
 export async function fetchRevenueSummary(): Promise<ApiResponse<RevenueSummary>> {
@@ -90,7 +108,11 @@ export async function updateRevenueRecord(
     throw new Error(`Update revenue record failed: ${response.status}`);
   }
 
-  return response.json() as Promise<ApiResponse<RevenueRecord>>;
+  const result = (await response.json()) as ApiResponse<RevenueRecord>;
+  if (result.success && result.data) {
+    result.data = normalizeRevenueRecord(result.data);
+  }
+  return result;
 }
 
 export async function deleteRevenueRecord(id: number): Promise<ApiResponse<null>> {

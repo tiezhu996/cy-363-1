@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Modal, Form, Input, InputNumber, DatePicker, Select, message } from "antd";
+import dayjs from "dayjs";
 import type { Dayjs } from "dayjs";
 import type { CreateRevenueRequest, RevenueRecord } from "../types";
 import { createRevenueRecord, updateRevenueRecord } from "../api/client";
@@ -20,15 +21,19 @@ const themeOptions = [
   "密室逃脱经典版",
 ];
 
+interface RevenueFormValues extends Omit<CreateRevenueRequest, "sessionTime"> {
+  sessionTime: Dayjs;
+}
+
 export function RevenueFormModal({ open, onCancel, onSuccess, editingRecord }: RevenueFormModalProps) {
-  const [form] = Form.useForm<CreateRevenueRequest & { sessionTime: Dayjs }>();
+  const [form] = Form.useForm<RevenueFormValues>();
 
   useEffect(() => {
     if (open) {
       if (editingRecord) {
         form.setFieldsValue({
           themeName: editingRecord.themeName,
-          sessionTime: editingRecord.sessionTime as any,
+          sessionTime: dayjs(editingRecord.sessionTime),
           income: editingRecord.income,
           expense: editingRecord.expense,
           actualAttendance: editingRecord.actualAttendance,

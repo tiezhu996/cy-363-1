@@ -22,6 +22,8 @@ export class RevenueService {
       ...json,
       income: Number(json.income),
       expense: Number(json.expense),
+      actualAttendance: Number(json.actualAttendance),
+      reservationCount: Number(json.reservationCount),
     };
   }
 
